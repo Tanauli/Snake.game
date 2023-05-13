@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Snake Game</title>
+    <style>
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script src="snake.js"></script>
+  </body>
+</html>
+/* No specific styles are required for the game, so the styles in the HTML are enough. */
+// Define constants for the game.
+const canvas = document.getElementById("canvas");
+const context = canvas.getContext("2d");
+const blockSize = 10;
+const canvasWidth = canvas.width;
+const canvasHeight = canvas.height;
+const blockWidth = canvasWidth / blockSize;
+const blockHeight = canvasHeight / blockSize;
+
+// Define the Snake class.
+class Snake {
+  constructor() {
+    this.segments = [
+      { x: 7, y: 5 },
+      { x: 6, y: 5 },
+      { x: 5, y: 5 },
+    ];
+    this.direction = "right";
+  }
+
+  draw() {
+    context.fillStyle = "green";
+    for (let i = 0; i < this.segments.length; i++) {
+      const segment = this.segments[i];
+      context.fillRect(
+        segment.x * blockSize,
+        segment.y * blockSize,
+        blockSize,
+        blockSize
+      );
+    }
+  }
+
+  move() {
+    const head = { ...this.segments[0] };
+    switch (this.direction) {
+      case "up":
+        head.y--;
+        break;
+      case "down":
+        head.y++;
+        break;
+      case "left":
+        head.x--;
+        break;
+      case "right":
+        head.x++;
+        break;
+    }
+    this.segments.unshift(head);
+    this.segments.pop();
+  }
+
+  changeDirection(direction) {
+    if (
+      (this.direction === "up" && direction !== "down") ||
+      (this.direction === "down" && direction !== "up") ||
+      (this.direction === "left" && direction !== "right") ||
+      (this.direction === "right" && direction !== "left")
+    ) {
+      this.direction = direction;
+    }
+  }
+
+  checkCollision() {
+    const head = this.segments[0];
+    return (
+      head.x < 0 ||
+      head.x >= blockWidth ||
+      head.y < 0 ||
+      head.y >= blockHeight ||
+      this.segments.some((segment, index) => index !== 0 && segment.x === head.x && segment.y === head.y)
+    );
+  }
+
+  eatFood(food) {
+    const head = this.segments[0];
+    if (head.x === food.x && head.y === food.y) {
+      this.segments.unshift(food);
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
+// Define the Food class.
+class Food {
+  constructor() {
+    this.x = Math.floor(Math.random() * blockWidth);
+    this.y = Math.floor(Math.random() * blockHeight);
+  }
+
+  draw() {
+    context.fillStyle = "red";
+    context.fillRect(
+      this.x * blockSize,
+      this.y * blockSize,
+      blockSize,
+      blockSize
+    );
+  }
+}
+
+// Define the game loop function.
+function gameLoop() {
+  if (snake.checkCollision()) {
+    alert("Game over!");
+    clearInterval(intervalId);
+  } else {
+    context.clearRect(0, 0, canvasWidth, canvasHeight);
+    snake.move();
+    const foodE
